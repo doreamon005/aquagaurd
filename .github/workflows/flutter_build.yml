@@ -10,20 +10,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Install Java (required for Android/Gradle)
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Install Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'   # pick a stable version
+          flutter-version: '3.24.0'
 
+      # Accept Android licenses
+      - name: Accept Android Licenses
+        run: yes | flutter doctor --android-licenses
+
+      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
+      # Build APK
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --debug --verbose
 
+      # Upload APK as artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
