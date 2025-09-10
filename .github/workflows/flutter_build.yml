@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install Java (required for Android/Gradle)
+      # Install Java (required for Gradle)
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -35,13 +35,23 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # Build APK
+      # Build APK (with verbose logs saved)
       - name: Build APK
-        run: flutter build apk --release --debug --verbose
+        run: |
+          flutter build apk --release --verbose | tee build-log.txt
 
-      # Upload APK as artifact
+      # Upload APK (only if build succeeds)
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: groundwater-app-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      # Upload logs (even if build fails)
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: build-log.txt
